@@ -17,6 +17,7 @@
 """
 import os
 import re
+import sys
 import math
 import urllib3
 import logging
@@ -91,6 +92,7 @@ def jobkorea_crawler():
             'confirm': '0',
             'profile': '0',
         }
+        logging.debug(str(data))
         res = session.post(f'{base_url}/Recruit/Home/_GI_List/', cookies=cookies, headers=headers, data=data, verify=False)
         doc = bs(res.content, 'html.parser')
         total_page = math.ceil(int(re.sub('\D','', doc.find('span', {'data-text':"전체"}).text)) / _pagesize)
@@ -99,8 +101,14 @@ def jobkorea_crawler():
         _items = doc.find_all('td', {'class':'tplTit'})
         for item in _items:
             url = base_url + item.find('a').get('href')
-            data_brazeinfo = item.find('button').get('data-brazeinfo')
-            list_info = [x.text.strip() for x in item.find_all('span', {'class':'cell'})]
+            try:
+                data_brazeinfo = item.find('button').get('data-brazeinfo')
+            except:
+                pass
+            try:
+                list_info = [x.text.strip() for x in item.find_all('span', {'class':'cell'})]
+            except:
+                pass
             items.append(dict(id=data_brazeinfo.split('|')[1], url=url, data_brazeinfo=data_brazeinfo, list_info=list_info))
         sleep(5)
     logging.info('crawl list jobkorea complete')
@@ -113,6 +121,6 @@ def jobkorea_crawler():
 
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, stream=sys.out)
     jobkorea_crawler()
 
