@@ -1,0 +1,5 @@
+pip
+orjson
+requests
+pandas
+openpyxl
