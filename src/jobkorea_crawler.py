@@ -91,17 +91,17 @@ def jobkorea_crawler():
         list_info = [x.text.strip() for x in item.find_all('span', {'class':'cell'})]
         items.append(dict(id=data_brazeinfo.split('|')[1], url=url, data_brazeinfo=data_brazeinfo, list_info=list_info))
     
-    os.makedirs('result', exist_ok=True)
-    pd.DataFrame(items).to_excel('result/' + data['condition[menucode]'] + '.xlsx', index=False)
+    os.makedirs('../result', exist_ok=True)
+    pd.DataFrame(items).to_excel(f"../result/{data['condition[menucode]']}.xlsx", index=False)
     #페이지 상세조회
     for item in items:
         recruit_id = item['data_brazeinfo'].split('|')[1]	
-        os.makedirs(recruit_id, exist_ok=True)	
+        os.makedirs(f'../crawl/{recruit_id}', exist_ok=True)	
         url = item['url']
         if os.path.exists(f'{recruit_id}/{recruit_id}.html'): continue
         sleep(5)
         res = req.get(url, headers=headers, cookies=cookies, verify=False)
-        with open(f'crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
+        with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
             fs.write(res.content)
         doc = bs(res.content, 'html.parser')
         ##article
@@ -123,7 +123,7 @@ def jobkorea_crawler():
         res = req.get(url, headers=headers, cookies=cookies, verify=False)
         _tables = bs(res.content, 'html.parser').find_all('table')
         for i, table in enumerate(_tables):
-            with open(f'crawl/{recruit_id}/{i}.html', 'wt', encoding='utf-8') as fs:
+            with open(f'../crawl/{recruit_id}/{i}.html', 'wt', encoding='utf-8') as fs:
                 fs.write(str(table))
 			
 
