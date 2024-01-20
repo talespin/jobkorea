@@ -62,7 +62,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
     items = pd.read_json(list_file).to_dict('records')    
     #페이지 상세조회
     for item in items:
-        recruit_id = item['data_brazeinfo'].split('|')[1]	
+        recruit_id = item['id']
         os.makedirs(f'../crawl/{recruit_id}', exist_ok=True)	
         url = item['url']
         if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html') and not overwrite:
@@ -82,7 +82,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
         try:
             article.update({'지역':article.get('지역').replace('지도','').strip()})
         except:
-            pass	
+            pass
         ##company
         _company = doc.find('div', {'class':'tbCol tbCoInfo'})
         company = {}
