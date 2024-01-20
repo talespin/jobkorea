@@ -30,13 +30,7 @@ from bs4 import BeautifulSoup as bs
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
-def clear_dblspace(s:str)->str:
-    while True:
-        if len(s) == len(s.replace('  ','')): return s
-        s = s.replace('  ','')
-
-
-def jobkorea_crawler():
+def jobkorea_list():
     logging.info('start crawl list jobkorea')
     headers = {
         'Accept': 'text/html, */*; q=0.01',
@@ -122,5 +116,5 @@ def jobkorea_crawler():
 
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO, stream=sys.out)
-    jobkorea_crawler()
+    jobkorea_list()
 
