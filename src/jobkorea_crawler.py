@@ -68,7 +68,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
         if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html') and not overwrite:
             logging.info(f'    Skip file exists:{recruit_id}/{recruit_id}.html')
             continue
-        sleep(5)
+        sleep(7)
         logging.info(f'      crawling:{recruit_id}')
         res = req.get(url, headers=headers, cookies=cookies, verify=False)
         with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
