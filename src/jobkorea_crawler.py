@@ -18,6 +18,7 @@
 import os
 import urllib3
 import logging
+import argparse
 import pandas as pd
 import requests as req
 from time import sleep
@@ -33,7 +34,10 @@ def clear_dblspace(s:str)->str:
         s = s.replace('  ','')
 
 
-def jobkorea_crawler():
+def jobkorea_crawler(list_file:str, overwrite:bool = False):
+    if not os.path.exists(list_file):
+        print('File not found:' + os.path.abspath(list_file))
+        return
     headers = {
         'Accept': 'text/html, */*; q=0.01',
         'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -55,51 +59,17 @@ def jobkorea_crawler():
     base_url = 'https://www.jobkorea.co.kr'
     res = session.get(base_url, headers=headers, verify=False)
     cookies = dict(res.cookies)
-    #
-    ##지역별 건수 구하기
-    #url = f'{base_url}/recruit/joblist?menucode=local&localorder=1'
-    #res = req.get(url, headers=headers, verify=False, cookies=cookies)
-    #_areas = [x for x in doc.find_all('label', {'class':'lb_tag'}) if x.get('for').startswith("local_step1_")]
-    #areas = []
-    #for area in _areas:
-    #    try:
-    #        area_code = area.get('for')[-4:]
-    #        [area_name, area_count] = area.find_all('span')[1].text.split('(')
-    #        job_count = int(area_count[:-1].replace(',',''))
-    #        areas.append(dict(area_code=area_code, area_name=area_name, job_count=job_count))
-    #    except:
-    #        logging.debug('parse error: ' + area.text)
-    #지역별 목록조회
-    data = {
-        'page': '1',
-        'condition[menucode]': 'I000',
-        'direct': '0',
-        'order': '20',
-        'pagesize': '100',
-        'tabindex': '0',
-        'onePick': '0',
-        'confirm': '0',
-        'profile': '0',
-    }
-    res = session.post(f'{base_url}/Recruit/Home/_GI_List/', cookies=cookies, headers=headers, data=data, verify=False)
-    doc = bs(res.content, 'html.parser')
-    _items = doc.find_all('td', {'class':'tplTit'})
-    items = []
-    for item in _items:
-        url = base_url + item.find('a').get('href')
-        data_brazeinfo = item.find('button').get('data-brazeinfo')
-        list_info = [x.text.strip() for x in item.find_all('span', {'class':'cell'})]
-        items.append(dict(id=data_brazeinfo.split('|')[1], url=url, data_brazeinfo=data_brazeinfo, list_info=list_info))
-    
-    os.makedirs('../result', exist_ok=True)
-    pd.DataFrame(items).to_excel(f"../result/{data['condition[menucode]']}.xlsx", index=False)
+    items = pd.read_json(list_file).to_dict('records')    
     #페이지 상세조회
     for item in items:
         recruit_id = item['data_brazeinfo'].split('|')[1]	
         os.makedirs(f'../crawl/{recruit_id}', exist_ok=True)	
         url = item['url']
-        if os.path.exists(f'{recruit_id}/{recruit_id}.html'): continue
+        if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html') and not overwrite:
+            logging.info(f'    Skip file exists:{recruit_id}/{recruit_id}.html')
+            continue
         sleep(5)
+        logging.info(f'      crawling:{recruit_id}')
         res = req.get(url, headers=headers, cookies=cookies, verify=False)
         with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
             fs.write(res.content)
@@ -129,5 +99,11 @@ def jobkorea_crawler():
 
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO)
-    jobkorea_crawler()
+    parser = argparse.ArgumentParser(
+                    prog='jobkorea crawler',
+                    description='jobkorea 구인목록을 크롤합니다.')
+    parser.add_argument('-l', '--list')
+    parser.add_argument('-o', '--overwrite', default=False)
+    args = parser.parse_args()
+    jobkorea_crawler(args.list, args.overwrite)
 
