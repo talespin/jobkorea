@@ -87,8 +87,15 @@ def jobkorea_list():
             'profile': '0',
         }
         logging.debug(str(data))
-        res = session.post(f'{base_url}/Recruit/Home/_GI_List/', cookies=cookies, headers=headers, data=data, verify=False)
-        doc = bs(res.content, 'html.parser')
+        if os.path.exists(f'../list/{page}'):
+            with open(f'../list/{page}','rb') as fs:
+                doc = bs(fs.read(), 'html.parser')
+        else:
+            sleep(5)
+            res = session.post(f'{base_url}/Recruit/Home/_GI_List/', cookies=cookies, headers=headers, data=data, verify=False)
+            with open(f'../list/{page}','rb') as fs:
+                fs.write(res.content)
+            doc = bs(res.content, 'html.parser')
         total_page = math.ceil(int(re.sub('\D','', doc.find('span', {'data-text':"전체"}).text)) / _pagesize)
         page = page+1
         if page > total_page: break
@@ -104,7 +111,6 @@ def jobkorea_list():
             except:
                 pass
             items.append(dict(id=data_brazeinfo.split('|')[1], url=url, data_brazeinfo=data_brazeinfo, list_info=list_info))
-        sleep(5)
     logging.info('crawl list jobkorea complete')
     #리스트 크롤완료
     logging.info('make list file processing...')
