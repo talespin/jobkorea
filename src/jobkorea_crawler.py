@@ -16,11 +16,13 @@
  
 """
 import os
+import sys
 import urllib3
 import logging
 import argparse
 import pandas as pd
 import requests as req
+from random import random
 from time import sleep
 from bs4 import BeautifulSoup as bs
 
@@ -68,7 +70,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
         if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html') and not overwrite:
             logging.info(f'    Skip file exists:{recruit_id}/{recruit_id}.html')
             continue
-        sleep(7)
+        sleep(10*random())
         logging.info(f'      crawling:{recruit_id}')
         res = req.get(url, headers=headers, cookies=cookies, verify=False)
         with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
@@ -98,7 +100,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
 			
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     parser = argparse.ArgumentParser(
                     prog='jobkorea crawler',
                     description='jobkorea 구인목록을 크롤합니다.')

@@ -4,9 +4,9 @@ import pandas as pd
 
 
 def main():
-    split_cnt = int(input("몇개의 파일로 나눌까요?\r\r(숫자만입력해주세요)"))
+    split_cnt = int(input("\r\n\r\n몇개의 파일로 나눌까요?\r\n(숫자만입력해주세요)"))
     if not os.path.exists('../list/jobkorea.xlsx'):
-        print(os.path/abspath('../list/jobkorea.xlsx') + ' 파일이 없습니다. jobkorea_list.py 를 실행해서 먼저 리스트파일을 생성하세요')
+        print(os.path.abspath('../list/jobkorea.xlsx') + ' 파일이 없습니다. jobkorea_list.py 를 실행해서 먼저 리스트파일을 생성하세요')
         return
     df = pd.read_excel('../list/jobkorea.xlsx')
     if len(df) < split_cnt:
@@ -18,6 +18,6 @@ def main():
 
 
 
-if __main__=='__main__':
+if __name__=='__main__':
     main()
 
