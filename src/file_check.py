@@ -11,3 +11,4 @@ for id in ids:
   except:
     pass
 #https://www.jobkorea.co.kr/NET/jkWebModule/jkConfirm.aspx?r=1&a=/NET&ret=%2frecruit%2fjoblist%3fmenucode%3dlocal%26localorder%3d1
+#보안문자 입력 후 다시 이용 가능합니다.
