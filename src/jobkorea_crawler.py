@@ -25,6 +25,9 @@ import requests as req
 from random import random
 from time import sleep
 from bs4 import BeautifulSoup as bs
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
 
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -70,7 +73,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
         if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html') and not overwrite:
             logging.info(f'    Skip file exists:{recruit_id}/{recruit_id}.html')
             continue
-        sleep(10*random())
+        sleep(30*random())
         logging.info(f'      crawling:{recruit_id}')
         res = req.get(url, headers=headers, cookies=cookies, verify=False)
         with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
@@ -79,8 +82,31 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
         ##article
         _article = doc.find('article', {'class':'artReadJobSum'})
         article = {}
-        for dt, dd in zip(_article.find_all('dt'), _article.find_all('dd')):   
-            article.update({dt.text.strip():''.join([clear_dblspace(k).strip() for k in dd.text.strip().split('\r\n')])})
+        dts, dds = None, None
+        try:
+            dts, dds = _article.find_all('dt'), _article.find_all('dd')
+        except:
+            logging.warning("IP 차단 웹브라우저를 열어봅시다.")
+            ff_svc = Service(os.path.abspath('geckodriver'))
+            ff = webdriver.Firefox(service=ff_svc)
+            ff.get(url)
+            while True:
+                if ff.execute_script('return document.location.href') != url: break
+                sleep(10)
+            continue
+        for dt, dd in zip(dts, dds):
+            try:
+                article.update({dt.text.strip():''.join([clear_dblspace(k).strip() for k in dd.text.strip().split('\r\n')])})
+            except:
+                logging.warning("IP 차단됬으니 60분 있다가 시작합니다.")
+                sleep(60*60)
+                res = req.get(url, headers=headers, cookies=cookies, verify=False)
+                with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
+                    fs.write(res.content)
+                doc = bs(res.content, 'html.parser')
+                ##article
+                _article = doc.find('article', {'class':'artReadJobSum'})
+                article = {}
         try:
             article.update({'지역':article.get('지역').replace('지도','').strip()})
         except:
@@ -108,4 +134,5 @@ if __name__=='__main__':
     parser.add_argument('-o', '--overwrite', default=False)
     args = parser.parse_args()
     jobkorea_crawler(args.list, args.overwrite)
+
 
