@@ -10,4 +10,4 @@ for id in ids:
           print(id)
   except:
     pass
-
+#https://www.jobkorea.co.kr/NET/jkWebModule/jkConfirm.aspx?r=1&a=/NET&ret=%2frecruit%2fjoblist%3fmenucode%3dlocal%26localorder%3d1
