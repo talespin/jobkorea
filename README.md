@@ -16,10 +16,12 @@ mv chromedriver-linux64/chromedriver ./
 # anaconda 설치
 wget https://repo.anaconda.com/archive/Anaconda3-2023.09-0-Linux-x86_64.sh
 sudo bash Anaconda3-2023.09-0-Linux-x86_64.sh
+<pre>
 >>>설치위치는  /usr/share/python-3.11
 설치후 PATH 추가
 >>>vi ~/.bash_profile
 >>>export PATH=/usr/share/python-3.11/bin:$PATH
+</pre>
 
 # source clone
 git clone https://github.com/talespin/jobkorea.git
