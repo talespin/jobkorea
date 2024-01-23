@@ -45,6 +45,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
         return
     #chapcha 를 대비하여 chrome 브라우저를 띄울 준비        
     chrome_svc = Service(os.path.abspath('chromedriver'))        
+    chrome_svc.start()
     headers = {
         'Accept': 'text/html, */*; q=0.01',
         'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
