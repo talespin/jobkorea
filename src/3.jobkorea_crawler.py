@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-:filename: jobkorea_crawler.py
+:filename: 3.jobkorea_crawler.py
 :author: 최종환
 :last update: 2024.01.11
  
@@ -12,7 +12,7 @@
     ============== ========== ====================================
  
 :desc:
-    jobkorea site 의 지역별 체용정보 전체검색
+    jobkorea 옵션으로 지정한 json 파일을 읽어서 해당파일의 목록일 이용하여 컨텐츠를 크롤한다.
  
 """
 import os
@@ -26,8 +26,8 @@ from random import random
 from time import sleep
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -43,6 +43,8 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
     if not os.path.exists(list_file):
         print('File not found:' + os.path.abspath(list_file))
         return
+    #chapcha 를 대비하여 chrome 브라우저를 띄울 준비        
+    chrome_svc = Service(os.path.abspath('chromedriver'))        
     headers = {
         'Accept': 'text/html, */*; q=0.01',
         'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -75,25 +77,25 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
             continue
         sleep(30*random())
         logging.info(f'      crawling:{recruit_id}')
-        res = req.get(url, headers=headers, cookies=cookies, verify=False)
-        with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
-            fs.write(res.content)
+        #chapcha 가 표시되는지 확인하여 chapcha 처리후 진행되도록
+        while True:
+            res = req.get(url, headers=headers, cookies=cookies, verify=False)
+            if res.text.find('보안문자') > 0:
+                logging.warning("IP 차단 웹브라우저를 열어봅시다.")
+                chrome = webdriver.Chrome(service=chrome_svc)
+                chrome.get(url)
+                input_capcha = input("보안문자를 입력했나요?\r\nY 를 입력하세요")
+                chrome.close()
+            else:
+                with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wt', encoding='utf-8') as fs:
+                    fs.write(res.content)
+                break               
         doc = bs(res.content, 'html.parser')
         ##article
         _article = doc.find('article', {'class':'artReadJobSum'})
         article = {}
         dts, dds = None, None
-        try:
-            dts, dds = _article.find_all('dt'), _article.find_all('dd')
-        except:
-            logging.warning("IP 차단 웹브라우저를 열어봅시다.")
-            ff_svc = Service(os.path.abspath('geckodriver'))
-            ff = webdriver.Firefox(service=ff_svc)
-            ff.get(url)
-            while True:
-                if ff.execute_script('return document.location.href') != url: break
-                sleep(10)
-            continue
+        dts, dds = _article.find_all('dt'), _article.find_all('dd')
         for dt, dd in zip(dts, dds):
             try:
                 article.update({dt.text.strip():''.join([clear_dblspace(k).strip() for k in dd.text.strip().split('\r\n')])})
@@ -101,7 +103,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
                 logging.warning("IP 차단됬으니 60분 있다가 시작합니다.")
                 sleep(60*60)
                 res = req.get(url, headers=headers, cookies=cookies, verify=False)
-                with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wb') as fs:
+                with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wt', encoding='utf-8') as fs:
                     fs.write(res.content)
                 doc = bs(res.content, 'html.parser')
                 ##article
@@ -123,7 +125,8 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
         for i, table in enumerate(_tables):
             with open(f'../crawl/{recruit_id}/{i}.html', 'wt', encoding='utf-8') as fs:
                 fs.write(str(table))
-			
+    chrome_svc.stop()                
+
 
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
