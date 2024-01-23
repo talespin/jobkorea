@@ -1,6 +1,6 @@
 #!/usr/bin/python
 """
-:filename: 2.jobkorea_list.py
+:filename: 2.jobkorea_split.py
 :author: 최종환
 :last update: 2024.01.20
  
