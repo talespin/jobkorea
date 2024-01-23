@@ -88,7 +88,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
                 chrome.close()
             else:
                 with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wt', encoding='utf-8') as fs:
-                    fs.write(res.content)
+                    fs.write(res.content.decode('utf-8'))
                 break               
         doc = bs(res.content, 'html.parser')
         ##article
@@ -104,7 +104,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
                 sleep(60*60)
                 res = req.get(url, headers=headers, cookies=cookies, verify=False)
                 with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wt', encoding='utf-8') as fs:
-                    fs.write(res.content)
+                    fs.write(res.content.decode('utf-8'))
                 doc = bs(res.content, 'html.parser')
                 ##article
                 _article = doc.find('article', {'class':'artReadJobSum'})
