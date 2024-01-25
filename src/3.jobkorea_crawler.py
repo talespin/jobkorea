@@ -86,7 +86,10 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
                 chrome = webdriver.Chrome(service=chrome_svc)
                 chrome.get(url)
                 input("보안문자 입력후 Enter 를 입력하세요\r\n\r\n")
-                chrome.close()
+                try:
+                    chrome.close()
+                except:
+                    pass
             else:
                 with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wt', encoding='utf-8') as fs:
                     fs.write(res.content.decode('utf-8'))
