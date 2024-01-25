@@ -96,6 +96,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
                 break               
         doc = bs(res.content, 'html.parser')
         ##article
+        if res.content.decode('utf-8').find('채용공고가 존재하지 않습니다') > 0: continue
         _article = doc.find('article', {'class':'artReadJobSum'})
         article = {}
         dts, dds = None, None
