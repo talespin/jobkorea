@@ -121,6 +121,6 @@ def jobkorea_list():
 
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.INFO, stream=sys.out)
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     jobkorea_list()
 
