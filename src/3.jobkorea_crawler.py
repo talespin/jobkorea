@@ -41,7 +41,7 @@ def clear_dblspace(s:str)->str:
 
 def jobkorea_crawler(list_file:str, overwrite:bool = False):
     if not os.path.exists(list_file):
-        print('File not found:' + os.path.abspath(list_file))
+        logging.error('File not found:' + os.path.abspath(list_file))
         return
     #chapcha 를 대비하여 chrome 브라우저를 띄울 준비        
     chrome_svc = Service(os.path.abspath('chromedriver'))        
@@ -85,7 +85,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
                 logging.warning("IP 차단 웹브라우저를 열어봅시다.")
                 chrome = webdriver.Chrome(service=chrome_svc)
                 chrome.get(url)
-                input("보안문자 입력후 Enter 를 입력하세요\r\n\r\n")
+                _ = input("보안문자 입력후 Enter 를 입력하세요\r\n\r\n")
                 try:
                     chrome.close()
                 except:
@@ -135,6 +135,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
 
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    logging.root.name = f"jobkorea_#{os.environ['id']}"
     parser = argparse.ArgumentParser(
                     prog='jobkorea crawler',
                     description='jobkorea 구인목록을 크롤합니다.')
