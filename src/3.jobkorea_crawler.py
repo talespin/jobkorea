@@ -85,7 +85,7 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
                 logging.warning("IP 차단 웹브라우저를 열어봅시다.")
                 chrome = webdriver.Chrome(service=chrome_svc)
                 chrome.get(url)
-                input_capcha = input("보안문자를 입력했나요?\r\nY 를 입력하세요")
+                input("보안문자 입력후 Enter 를 입력하세요\r\n\r\n")
                 chrome.close()
             else:
                 with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wt', encoding='utf-8') as fs:
