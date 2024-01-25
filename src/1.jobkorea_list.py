@@ -88,13 +88,13 @@ def jobkorea_list():
         }
         logging.debug(str(data))
         if os.path.exists(f'../list/{page}'):
-            with open(f'../list/{page}','rb') as fs:
+            with open(f'../list/{page}','rt', encoding='utf-8') as fs:
                 doc = bs(fs.read(), 'html.parser')
         else:
             sleep(5)
             res = session.post(f'{base_url}/Recruit/Home/_GI_List/', cookies=cookies, headers=headers, data=data, verify=False)
-            with open(f'../list/{page}','rb') as fs:
-                fs.write(res.content)
+            with open(f'../list/{page}','wt') as fs:
+                fs.write(res.content.decode('utf-8'))
             doc = bs(res.content, 'html.parser')
         total_page = math.ceil(int(re.sub('\D','', doc.find('span', {'data-text':"전체"}).text)) / _pagesize)
         page = page+1
