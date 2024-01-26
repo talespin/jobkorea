@@ -37,6 +37,11 @@ def main():
         try:
             if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): continue
             with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'rb') as fs:
+                if fs.read().decode('utf-8').find('채용공고가 존재하지 않습니다') >= 0:
+                    logging.info(' 채용공고가 존재하지 않습니다')
+                    os.remove(f'../crawl/{recruit_id}/{recruit_id}.html')
+                    os.removedirs(f'../crawl/{recruit_id}')
+                    continue             
                 doc = bs(fs.read(), 'html.parser')
             title = json.loads(doc.find_all('script')[-2].text.strip())['title']
             _article = doc.find('article', {'class':'artReadJobSum'})
