@@ -38,7 +38,7 @@ def main():
             if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): continue
             with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'rb') as fs:
                 doc = bs(fs.read(), 'html.parser')
-            title = orjson.loads(doc.find_all('script')[-2].text.strip())['title']
+            title = json.loads(doc.find_all('script')[-2].text.strip())['title']
             _article = doc.find('article', {'class':'artReadJobSum'})
             company_name = _article.find('span').text.strip()
             article = {}
