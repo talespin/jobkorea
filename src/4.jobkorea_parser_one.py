@@ -68,7 +68,7 @@ def main():
                 _ = fs.write(json.dumps(dct).decode('utf-8'))
         except:
             logging.error(f'parse error:{recruit_id}')
-            raise
+            logging.error(str(raise))
 
 
 if __name__=='__main__':
