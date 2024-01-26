@@ -32,7 +32,8 @@ def clear_dblspace(s:str)->str:
 def main():
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     ids = [os.path.basename(x) for x in glob('../crawl/*')]
-    for recruit_id in ids:
+    for i, recruit_id in enumerate(ids):
+        print(f'{i+1} / {len(ids)}')
         try:
             if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): continue
             with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'rb') as fs:
