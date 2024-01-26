@@ -34,41 +34,54 @@ def main():
     ids = [os.path.basename(x) for x in glob('../crawl/*')]
     for i, recruit_id in enumerate(ids):
         print(f'{i+1} / {len(ids)}')
+        if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): continue
+        if not os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html'):
+            os.removedirs(f'../crawl/{recruit_id}')
+            continue
+        with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'rb') as fs:
+            ss = fs.read().decode('utf-8')
+        if ss.find('채용공고가 존재하지 않습니다') >= 0:
+            logging.info(' 채용공고가 존재하지 않습니다')
+            os.remove(f'../crawl/{recruit_id}/{recruit_id}.html')
+            os.removedirs(f'../crawl/{recruit_id}')
+            continue
+        if ss.find('보안정책에 의하여 잡코리아') >= 0:
+            logging.info('보안정책에 의하여 잡코리아이용이 일시적으로 중지되었습니다')
+            _ = [os.remove(x) for x in glob(f'../crawl/{recruit_id}/*')]
+            os.removedirs(f'../crawl/{recruit_id}')
+            continue
+        doc = bs(ss, 'html.parser')
         try:
-            if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): continue
-            with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'rb') as fs:
-                if fs.read().decode('utf-8').find('채용공고가 존재하지 않습니다') >= 0:
-                    logging.info(' 채용공고가 존재하지 않습니다')
-                    os.remove(f'../crawl/{recruit_id}/{recruit_id}.html')
-                    os.removedirs(f'../crawl/{recruit_id}')
-                    continue             
-                doc = bs(fs.read(), 'html.parser')
             title = json.loads(doc.find_all('script')[-2].text.strip())['title']
-            _article = doc.find('article', {'class':'artReadJobSum'})
-            company_name = _article.find('span').text.strip()
-            article = {}
-            for dt, dd in zip(_article.find_all('dt'), _article.find_all('dd')):   
-                article.update({'article:'+dt.text.strip():''.join([clear_dblspace(k).strip() for k in dd.text.strip().split('\r\n')])})
-            try:
-                article.update({'article:'+'지역':article.get('지역').replace('지도','').strip()})
-            except:
-                pass	
-            ##company
-            _company = doc.find('div', {'class':'tbCol tbCoInfo'})
-            company = {}
-            for dt, dd in zip(_company.find_all('dt'), _company.find_all('dd')):
-                company.update({'company:'+dt.text.strip(): ''.join([clear_dblspace(x) for x in dd.text.strip().split('\r\n')])})
-            ##recruit
-            tables = '\r\n'.join(sorted([os.path.relpath(x) for x in glob(f'crawl/{recruit_id}/*.html') if os.path.basename(x) != f'{recruit_id}.html']))
-            dct = dict(id=recruit_id, company_name=company_name, title=title)
-            dct.update(article)
-            dct.update(company)
-            dct.update(dict(표=tables))
-            with open(f'../crawl/{recruit_id}/{recruit_id}.json', 'wt') as fs:
-                _ = fs.write(json.dumps(dct).decode('utf-8'))
-        except Exception as e:
-            logging.error(f'parse error:{recruit_id}')
-            logging.error(str(e))
+        except:
+            print('-'*50)
+            print(doc)
+            print(f'../crawl/{recruit_id}/{recruit_id}.html')
+            print(os.path.getsize(f'../crawl/{recruit_id}/{recruit_id}.html'))
+            print('-'*50)
+            raise
+        _article = doc.find('article', {'class':'artReadJobSum'})
+        company_name = _article.find('span').text.strip()
+        article = {}
+        for dt, dd in zip(_article.find_all('dt'), _article.find_all('dd')):   
+            article.update({'article:'+dt.text.strip():''.join([clear_dblspace(k).strip() for k in dd.text.strip().split('\r\n')])})
+        try:
+            article.update({'article:'+'지역':article.get('지역').replace('지도','').strip()})
+        except:
+            pass	
+        ##company
+        _company = doc.find('div', {'class':'tbCol tbCoInfo'})
+        company = {}
+        for dt, dd in zip(_company.find_all('dt'), _company.find_all('dd')):
+            company.update({'company:'+dt.text.strip(): ''.join([clear_dblspace(x) for x in dd.text.strip().split('\r\n')])})
+        ##recruit
+        tables = '\r\n'.join(sorted([os.path.relpath(x) for x in glob(f'crawl/{recruit_id}/*.html') if os.path.basename(x) != f'{recruit_id}.html']))
+        dct = dict(id=recruit_id, company_name=company_name, title=title)
+        dct.update(article)
+        dct.update(company)
+        dct.update(dict(표=tables))
+        with open(f'../crawl/{recruit_id}/{recruit_id}.json', 'wt') as fs:
+            _ = fs.write(json.dumps(dct).decode('utf-8'))
 
 
 if __name__=='__main__':
