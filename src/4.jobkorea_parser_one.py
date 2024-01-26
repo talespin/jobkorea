@@ -66,9 +66,9 @@ def main():
             dct.update(dict(표=tables))
             with open(f'../crawl/{recruit_id}/{recruit_id}.json', 'wt') as fs:
                 _ = fs.write(json.dumps(dct).decode('utf-8'))
-        except:
+        except Exception as e:
             logging.error(f'parse error:{recruit_id}')
-            logging.error(str(raise))
+            logging.error(str(e))
 
 
 if __name__=='__main__':
