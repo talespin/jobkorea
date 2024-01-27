@@ -34,13 +34,14 @@ def main():
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     ids = [os.path.basename(x) for x in glob('../crawl/*')]
     with Pool(4) as p:
-        p.map(parser, [dict(i=i, recruit_id=recruit_id) for i, recruit_id in enumerate(ids)])
+        p.map(parser, [dict(i=i, recruit_id=recruit_id, total=len(ids)) for i, recruit_id in enumerate(ids)])
 
 
 def parser(dct):
     i = dct['i']
     recruit_id = dct['recruit_id']
-    print(f'{i+1} / {len(ids)}')
+    total = dct['total']
+    print(f'{i+1} / {total}')
     if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): return
     if not os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html'):
         os.removedirs(f'../crawl/{recruit_id}')
