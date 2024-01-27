@@ -41,22 +41,22 @@ def parser(dct):
     i = dct['i']
     recruit_id = dct['recruit_id']
     print(f'{i+1} / {len(ids)}')
-    if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): continue
+    if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): return
     if not os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html'):
         os.removedirs(f'../crawl/{recruit_id}')
-        continue
+        return
     with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'rb') as fs:
         ss = fs.read().decode('utf-8')
     if ss.find('채용공고가 존재하지 않습니다') >= 0:
         logging.info(' 채용공고가 존재하지 않습니다')
         os.remove(f'../crawl/{recruit_id}/{recruit_id}.html')
         os.removedirs(f'../crawl/{recruit_id}')
-        continue
+        return
     if ss.find('보안정책에 의하여 잡코리아') >= 0:
         logging.info('보안정책에 의하여 잡코리아이용이 일시적으로 중지되었습니다')
         _ = [os.remove(x) for x in glob(f'../crawl/{recruit_id}/*')]
         os.removedirs(f'../crawl/{recruit_id}')
-        continue
+        return
     doc = bs(ss, 'html.parser')
     try:
         title = json.loads(doc.find_all('script')[-2].text.strip())['title']
