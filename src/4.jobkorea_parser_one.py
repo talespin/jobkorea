@@ -41,7 +41,7 @@ def parser(dct):
     i = dct['i']
     recruit_id = dct['recruit_id']
     total = dct['total']
-    print(f'{i+1} / {total}')
+    logging.info(f'{i+1} / {total}')
     if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): return
     if not os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html'):
         os.removedirs(f'../crawl/{recruit_id}')
@@ -58,15 +58,17 @@ def parser(dct):
         _ = [os.remove(x) for x in glob(f'../crawl/{recruit_id}/*')]
         os.removedirs(f'../crawl/{recruit_id}')
         return
+    if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'):
+        logging.info('이미 파싱완료되었습니다.')
     doc = bs(ss, 'html.parser')
     try:
         title = json.loads(doc.find_all('script')[-2].text.strip())['title']
     except:
-        print('-'*50)
-        print(doc)
-        print(f'../crawl/{recruit_id}/{recruit_id}.html')
-        print(os.path.getsize(f'../crawl/{recruit_id}/{recruit_id}.html'))
-        print('-'*50)
+        logging.error('-'*50)
+        logging.error(doc)
+        logging.error(f'../crawl/{recruit_id}/{recruit_id}.html')
+        logging.error(os.path.getsize(f'../crawl/{recruit_id}/{recruit_id}.html'))
+        logging.error('-'*50)
         raise
     _article = doc.find('article', {'class':'artReadJobSum'})
     company_name = _article.find('span').text.strip()
@@ -93,5 +95,7 @@ def parser(dct):
 
 
 if __name__=='__main__':
+    logging.basic(level=logging.INFO, stream=sys.stdout)
+    logging.root.name='jobkorea_parser'
     main()
 
