@@ -95,7 +95,7 @@ def parser(dct):
 
 
 if __name__=='__main__':
-    logging.basic(level=logging.INFO, stream=sys.stdout)
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     logging.root.name='jobkorea_parser'
     main()
 
