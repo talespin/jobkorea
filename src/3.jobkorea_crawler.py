@@ -21,12 +21,12 @@ import urllib3
 import logging
 import argparse
 import pandas as pd
-import inputimeout
 import requests as req
 from random import random
 from time import sleep
 from bs4 import BeautifulSoup as bs
 from selenium import webdriver
+from inputimeout import inputimeout, TimeoutOccurred
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
@@ -86,7 +86,10 @@ def jobkorea_crawler(list_file:str, overwrite:bool = False):
                 logging.warning("IP 차단 웹브라우저를 열어봅시다.")
                 chrome = webdriver.Chrome(service=chrome_svc)
                 chrome.get(url)
-                _ = inputimeout(prompt="보안문자 입력후 Enter 를 입력하세요\r\n\r\n", timeout=60*30)
+                try:
+                    _ = inputimeout(prompt="보안문자 입력후 Enter 를 입력하세요\r\n\r\n", timeout=60*30)
+                except TimeoutOccurred:
+                    pass
                 try:
                     chrome.close()
                 except:
