@@ -16,18 +16,20 @@
  
 """
 import os
+import sys
 import math
+import logging
 import pandas as pd
 
 
 def main():
     split_cnt = int(input("\r\n\r\n몇개의 파일로 나눌까요?\r\n(숫자만입력해주세요)"))
     if not os.path.exists('../list/jobkorea.xlsx'):
-        print(os.path.abspath('../list/jobkorea.xlsx') + ' 파일이 없습니다. jobkorea_list.py 를 실행해서 먼저 리스트파일을 생성하세요')
+        logging.info(os.path.abspath('../list/jobkorea.xlsx') + ' 파일이 없습니다. jobkorea_list.py 를 실행해서 먼저 리스트파일을 생성하세요')
         return
     df = pd.read_excel('../list/jobkorea.xlsx')
     if len(df) < split_cnt:
-        print('건수보다 나누려는 수가 큽니다.')
+        logging.info('건수보다 나누려는 수가 큽니다.')
         return
     page_cnt = math.ceil(len(df) / split_cnt)
     for cnt in range(0, split_cnt):
@@ -36,5 +38,7 @@ def main():
 
 
 if __name__=='__main__':
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    logging.root.name='jobkorea_split'
     main()
 
