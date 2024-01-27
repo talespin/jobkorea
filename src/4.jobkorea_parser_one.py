@@ -33,7 +33,7 @@ def clear_dblspace(s:str)->str:
 def main():
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     ids = [os.path.basename(x) for x in glob('../crawl/*')]
-    with pool.Pool(4) as p:
+    with Pool.Pool(4) as p:
         p.map(parser, [dict(i=i, recruit_id=recruit_id) for i, recruit_id in enumerate(ids)])
 
 
