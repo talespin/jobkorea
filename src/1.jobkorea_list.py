@@ -87,13 +87,14 @@ def jobkorea_list():
             'profile': '0',
         }
         logging.debug(str(data))
-        if os.path.exists(f'../list/{page}'):
-            with open(f'../list/{page}','rt', encoding='utf-8') as fs:
+        file_name = f'../list/{page}.page'
+        if os.path.exists(file_name):
+            with open(file_name,'rt', encoding='utf-8') as fs:
                 doc = bs(fs.read(), 'html.parser')
         else:
             sleep(5)
             res = session.post(f'{base_url}/Recruit/Home/_GI_List/', cookies=cookies, headers=headers, data=data, verify=False)
-            with open(f'../list/{page}','wt') as fs:
+            with open(file_name,'wt') as fs:
                 fs.write(res.content.decode('utf-8'))
             doc = bs(res.content, 'html.parser')
         total_page = math.ceil(int(re.sub('\D','', doc.find('span', {'data-text':"전체"}).text)) / _pagesize)
