@@ -8,7 +8,7 @@ def main():
     display = os.environ['DISPLAY']
     items = None
     lst = []
-    with open('../list/jobkorea_1.json', 'rt', encoding='utf-8') as fs:
+    with open('../list/jobkorea_2.json', 'rt', encoding='utf-8') as fs:
         items = json.loads(fs.read())
     for i, item in enumerate(items):
         id = item['id']

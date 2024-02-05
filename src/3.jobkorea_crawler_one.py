@@ -19,6 +19,7 @@ import os
 import sys
 import urllib3
 import logging
+import socket
 import argparse
 import pandas as pd
 import requests as req
@@ -83,7 +84,7 @@ def jobkorea_crawler_one(id:str, url:str):
     while True:
         res = req.get(url, headers=headers, cookies=cookies, verify=False)
         if res.text.find('보안문자') > 0:
-            logging.warning("IP 차단 웹브라우저를 열어봅시다.")
+            logging.warning(f"{socket.gethostname()}  IP 차단 웹브라우저를 열어봅시다.")
             chrome = webdriver.Chrome(service=chrome_svc)
             chrome.get(url)
             try:
@@ -140,7 +141,7 @@ def jobkorea_crawler_one(id:str, url:str):
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     try:
-        logging.root.name = f"jobkorea_#{sys.gethostname()}"
+        logging.root.name = f"jobkorea_#{socket.gethostname()}"
         logging.root.name = f"jobkorea_#{os.environ['id']}"
     except:
         pass
