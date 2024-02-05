@@ -139,7 +139,10 @@ def jobkorea_crawler_one(id:str, url:str):
 
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    logging.root.name = f"jobkorea_#{os.environ['id']}"
+    try:
+        logging.root.name = f"jobkorea_#{os.environ['id']}"
+    except:
+        pass
     parser = argparse.ArgumentParser(
                     prog='jobkorea crawler',
                     description='jobkorea 구인목록을 크롤합니다.')

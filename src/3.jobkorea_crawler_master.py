@@ -13,7 +13,8 @@ def main():
         server = (i % 10) +1
         id = item['id']
         url = item['url']
-        pgm = f'rsh crawler{server} \'export DISPLAY={os.environ["DISPLAY"]};cd /mnt/work/jobkorea/src;python 3.jobkorea_crawler_one.py -i {id} -u "{url}" -d "{display}"\'
+        pgm = f'rsh crawler{server} \'export DISPLAY={os.environ["DISPLAY"]};cd /mnt/work/jobkorea/src;/usr/share/python-3.11/bin/python 3.jobkorea_crawler_one.py -i {id} -u "{url}" -d "{display}"\''
+        print(pgm)
         lst.append(pgm)
     pool = Pool(10)
     pool.map_async(os.popen, lst)
