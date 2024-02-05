@@ -140,6 +140,7 @@ def jobkorea_crawler_one(id:str, url:str):
 if __name__=='__main__':
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     try:
+        logging.root.name = f"jobkorea_#{sys.gethostname()}"
         logging.root.name = f"jobkorea_#{os.environ['id']}"
     except:
         pass
