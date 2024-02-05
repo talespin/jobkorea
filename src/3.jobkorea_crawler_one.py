@@ -42,8 +42,8 @@ def clear_dblspace(s:str)->str:
 
 def jobkorea_crawler_one(id:str, url:str):
     file_name = f'../crawl/{id}/{id}.html'
-    if not os.path.exists(file_name):
-        logging.error('File not found:' + os.path.abspath(file_name))
+    if os.path.exists(file_name):
+        logging.error('File exist:' + os.path.abspath(file_name))
         return
     #chapcha 를 대비하여 chrome 브라우저를 띄울 준비        
     chrome_svc = Service(os.path.abspath('chromedriver'))        
@@ -69,14 +69,14 @@ def jobkorea_crawler_one(id:str, url:str):
     base_url = 'https://www.jobkorea.co.kr'
     res = session.get(base_url, headers=headers, verify=False)
     cookies = dict(res.cookies)
-    item = {id:id, url:url}    
+    item = dict(id=id, url=url)    
     #페이지 상세조회
     recruit_id = item['id']
     os.makedirs(f'../crawl/{recruit_id}', exist_ok=True)	
     url = item['url']
     if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html') and not overwrite:
         logging.info(f'    Skip file exists:{recruit_id}/{recruit_id}.html')
-        continue
+        return
     sleep(30*random())
     logging.info(f'      crawling:{recruit_id}')
     #chapcha 가 표시되는지 확인하여 chapcha 처리후 진행되도록
@@ -100,7 +100,7 @@ def jobkorea_crawler_one(id:str, url:str):
             break               
     doc = bs(res.content, 'html.parser')
     ##article
-    if res.content.decode('utf-8').find('채용공고가 존재하지 않습니다') > 0: continue
+    if res.content.decode('utf-8').find('채용공고가 존재하지 않습니다') > 0: return
     _article = doc.find('article', {'class':'artReadJobSum'})
     article = {}
     dts, dds = None, None
@@ -148,6 +148,6 @@ if __name__=='__main__':
     parser.add_argument('-d', '--display')
     args = parser.parse_args()
     os.environ['DISPLAY'] = args.display
-    jobkorea_crawler_one(args.list, args.url)
+    jobkorea_crawler_one(args.id, args.url)
 
 
