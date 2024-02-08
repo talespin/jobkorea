@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import orjson as json
 from multiprocessing import Pool
 from time import sleep
@@ -8,8 +9,9 @@ def main():
     display = os.environ['DISPLAY']
     items = None
     lst = []
-    with open('../list/jobkorea_2.json', 'rt', encoding='utf-8') as fs:
-        items = json.loads(fs.read())
+    items = pd.read_excel('../list/jobkorea.xlsx').to_dict('records')
+    #with open('../list/jobkorea_3.json', 'rt', encoding='utf-8') as fs:
+    #    items = json.loads(fs.read())
     for i, item in enumerate(items):
         id = item['id']
         if os.path.exists(f'../crawl/{id}/{id}.html'): continue
