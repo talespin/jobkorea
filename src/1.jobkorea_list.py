@@ -27,10 +27,16 @@ from time import sleep
 from bs4 import BeautifulSoup as bs
 
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 
 def jobkorea_list():
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+    logging.root.name='jobkorea_list'
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    ip = None
+    while True:
+        ip = input('>>>크롤작업을 새로 시작하려면 Y  이어서 하려면 N 를 입력하세요\n')
+        if ip in ['Y','N']: break
+    if ip == 'Y': [os.remove(x) for x in glob('../list/*')]
     logging.info('start crawl list jobkorea')
     headers = {
         'Accept': 'text/html, */*; q=0.01',
@@ -122,7 +128,5 @@ def jobkorea_list():
 
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    logging.root.name='jobkorea_list'
     jobkorea_list()
 

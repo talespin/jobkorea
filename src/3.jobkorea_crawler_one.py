@@ -32,9 +32,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
 
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-
 def clear_dblspace(s:str)->str:
     while True:
         if len(s) == len(s.replace('  ','')): return s
@@ -42,6 +39,7 @@ def clear_dblspace(s:str)->str:
 
 
 def jobkorea_crawler_one(id:str, url:str):
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     file_name = f'../crawl/{id}/{id}.html'
     if os.path.exists(file_name):
         logging.error('File exist:' + os.path.abspath(file_name))
@@ -87,10 +85,8 @@ def jobkorea_crawler_one(id:str, url:str):
             logging.warning(f"{socket.gethostname()}  IP 차단 웹브라우저를 열어봅시다.")
             chrome = webdriver.Chrome(service=chrome_svc)
             chrome.get(url)
-            try:
-                _ = inputimeout(prompt="보안문자 입력후 Enter 를 입력하세요\r\n\r\n", timeout=60*30)
-            except TimeoutOccurred:
-                pass
+            print("*"*50 + "\n\n      보안문자 입력후 Enter 를 입력하세요\r\n"+"*"*50)
+            sleep(60*10)
             try:
                 chrome.close()
             except:

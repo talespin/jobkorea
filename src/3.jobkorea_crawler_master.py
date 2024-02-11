@@ -1,3 +1,19 @@
+#!/usr/bin/python
+"""
+:filename: 3.jobkorea_crawler_master.py
+:author: 최종환
+:last update: 2024.01.11
+ 
+:CHANGELOG:
+    ============== ========== ====================================
+    수정일            수정자        수정내용
+    ============== ========== ====================================
+    2024.01.11     최종환        최초생성
+    ============== ========== ====================================
+ 
+:desc:
+    jobkorea.xlxs 을 읽어서 crawler 서버에 크롤명령어를 전송한다.
+"""
 import os
 import pandas as pd
 import orjson as json

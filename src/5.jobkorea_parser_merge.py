@@ -4,7 +4,7 @@ from glob import glob
 
 
 result = []
-for file_name in glob('../crawl/*/*.json'):
+for file_name in glob('../result/*.json'):
     try:
         with open(file_name, 'rt', encoding='utf-8') as fs:
             result.append(json.loads(fs.read()))

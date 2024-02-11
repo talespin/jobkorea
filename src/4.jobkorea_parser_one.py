@@ -41,8 +41,9 @@ def parser(dct):
     i = dct['i']
     recruit_id = dct['recruit_id']
     total = dct['total']
+    file_name = f'../result/{recruit_id}.json'
     logging.info(f'{i+1} / {total}')
-    if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'): return
+    if os.path.exists(file_name): return
     if not os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html'):
         os.removedirs(f'../crawl/{recruit_id}')
         return
@@ -55,11 +56,9 @@ def parser(dct):
         return
     if ss.find('보안정책에 의하여 잡코리아') >= 0:
         logging.info('보안정책에 의하여 잡코리아이용이 일시적으로 중지되었습니다')
-        _ = [os.remove(x) for x in glob(f'../crawl/{recruit_id}/*')]
+        _ = [os.remove(x) for x in glob(f'../crawl/{recruit_id}/*/*.html')]
         os.removedirs(f'../crawl/{recruit_id}')
         return
-    if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.json'):
-        logging.info('이미 파싱완료되었습니다.')
     doc = bs(ss, 'html.parser')
     try:
         title = json.loads(doc.find_all('script')[-2].text.strip())['title']
@@ -90,7 +89,7 @@ def parser(dct):
     dct.update(article)
     dct.update(company)
     dct.update(dict(표=tables))
-    with open(f'../crawl/{recruit_id}/{recruit_id}.json', 'wt') as fs:
+    with open(file_name, 'wt') as fs:
         _ = fs.write(json.dumps(dct).decode('utf-8'))
 
 
