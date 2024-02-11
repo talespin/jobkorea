@@ -85,8 +85,16 @@ def jobkorea_crawler_one(id:str, url:str):
             logging.warning(f"{socket.gethostname()}  IP 차단 웹브라우저를 열어봅시다.")
             chrome = webdriver.Chrome(service=chrome_svc)
             chrome.get(url)
+<<<<<<< HEAD
             print("*"*50 + "\n\n      보안문자 입력후 Enter 를 입력하세요\r\n"+"*"*50)
             sleep(60*10)
+=======
+            try:
+                print("*"*50 + "\n\n      보안문자 입력후 Enter 를 입력하세요\r\n"+"*"*50)
+                sleep(60*10)
+            except TimeoutOccurred:
+                pass
+>>>>>>> 05cbdc6ea1845d37c46681a3136b48c618a147fd
             try:
                 chrome.close()
             except:
