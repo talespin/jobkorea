@@ -88,7 +88,8 @@ def jobkorea_crawler_one(id:str, url:str):
             chrome = webdriver.Chrome(service=chrome_svc)
             chrome.get(url)
             try:
-                _ = inputimeout(prompt="보안문자 입력후 Enter 를 입력하세요\r\n\r\n", timeout=60*30)
+                print("*"*50 + "\n\n      보안문자 입력후 Enter 를 입력하세요\r\n"+"*"*50)
+                sleep(60*10)
             except TimeoutOccurred:
                 pass
             try:
