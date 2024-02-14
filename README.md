@@ -39,3 +39,8 @@ cd jobkorea/src
 sudo /usr/share/python-3.11/bin/pip install -r requirements.txt
 cp chromedriver jobkorea/src/
 </pre>
+
+# nfs mount
+<pre>
+  sudo mount -t nfs xxxx.xxxx.xxxx.xxxx:/n3250909_kstat /mnt/work
+</pre>
