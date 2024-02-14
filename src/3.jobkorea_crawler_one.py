@@ -17,6 +17,7 @@
 """
 import os
 import sys
+import psutil
 import urllib3
 import logging
 import socket
@@ -78,12 +79,13 @@ def jobkorea_crawler_one(id:str, url:str):
         return
     sleep(30*random())
     logging.info(f'      crawling:{recruit_id}')
+    chrome = None
     #chapcha 가 표시되는지 확인하여 chapcha 처리후 진행되도록
     while True:
         res = req.get(url, headers=headers, cookies=cookies, verify=False)
         if res.text.find('보안문자') > 0:
             logging.warning(f"{socket.gethostname()}  IP 차단 웹브라우저를 열어봅시다.")
-            chrome = webdriver.Chrome(service=chrome_svc)
+            if not chrome: chrome = webdriver.Chrome(service=chrome_svc)
             chrome.get(url)
             print("*"*50 + "\n\n      보안문자 입력후 Enter 를 입력하세요\r\n"+"*"*50)
             sleep(60*10)
