@@ -26,16 +26,15 @@ def main():
     items = None
     lst = []
     items = pd.read_excel('../list/jobkorea.xlsx').to_dict('records')
-    #with open('../list/jobkorea_3.json', 'rt', encoding='utf-8') as fs:
-    #    items = json.loads(fs.read())
     for i, item in enumerate(items):
         id = item['id']
         if os.path.exists(f'../crawl/{id}/{id}.html'): continue
         server = (i % 10) +1
         url = item['url']
         pgm = f'rsh crawler{server} \'export DISPLAY={os.environ["DISPLAY"]};cd /mnt/work/jobkorea/src;/usr/share/python-3.11/bin/python 3.jobkorea_crawler_one.py -i {id} -u "{url}" -d "{display}"\''
-        print(pgm)
         lst.append(pgm)
+    print(f'total count:{len(items)},  exists count:{len(items) - len(lst)}, target count:{len(lst)}')
+    print(f'crawl start')
     pool = Pool(10)
     pool.map_async(subprocess, lst)
     pool.close()
