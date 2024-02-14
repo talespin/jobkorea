@@ -77,7 +77,7 @@ def jobkorea_crawler_one(id:str, url:str):
     if os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html') and not overwrite:
         logging.info(f'    Skip file exists:{recruit_id}/{recruit_id}.html')
         return
-    sleep(30*random())
+    sleep(20*random())
     logging.info(f'      crawling:{recruit_id}')
     chrome = None
     #chapcha 가 표시되는지 확인하여 chapcha 처리후 진행되도록

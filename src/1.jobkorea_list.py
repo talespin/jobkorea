@@ -123,7 +123,8 @@ def jobkorea_list():
     #리스트 크롤완료
     logging.info('make list file processing...')
     os.makedirs('../list', exist_ok=True)
-    pd.DataFrame(items).to_excel(f"../list/jobkorea.xlsx", index=False)
+    #pd.DataFrame(items).to_excel(f"../list/jobkorea.xlsx", index=False)
+    pd.DataFrame(items).to_csv(f"../list/jobkorea.csv", index=False)
     logging.info('complete!!!')
 
 
