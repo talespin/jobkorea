@@ -43,7 +43,7 @@ def jobkorea_crawler_one(id:str, url:str):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     file_name = f'../crawl/{id}/{id}.html'
     if os.path.exists(file_name):
-        logging.error('File exist:' + os.path.abspath(file_name))
+        logging.info('File exist:' + os.path.abspath(file_name))
         return
     #chapcha 를 대비하여 chrome 브라우저를 띄울 준비        
     chrome_svc = Service(os.path.abspath('chromedriver'))        
