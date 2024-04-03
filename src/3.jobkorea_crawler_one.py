@@ -82,7 +82,7 @@ def jobkorea_crawler_one(id:str, url:str):
     chrome = None
     #chapcha 가 표시되는지 확인하여 chapcha 처리후 진행되도록
     while True:
-        res = req.get(url, headers=headers, cookies=cookies, verify=False)
+        res = session.get(url, headers=headers, cookies=cookies, verify=False)
         if res.text.find('보안문자') > 0:
             logging.warning(f"{socket.gethostname()}  IP 차단 웹브라우저를 열어봅시다.")
             if not chrome: chrome = webdriver.Chrome(service=chrome_svc)
@@ -115,7 +115,7 @@ def jobkorea_crawler_one(id:str, url:str):
         except:
             logging.warning("IP 차단됬으니 60분 있다가 시작합니다.")
             sleep(60*60)
-            res = req.get(url, headers=headers, cookies=cookies, verify=False)
+            res = session.get(url, headers=headers, cookies=cookies, verify=False)
             with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'wt', encoding='utf-8') as fs:
                 fs.write(res.content.decode('utf-8'))
             doc = bs(res.content, 'html.parser')
@@ -133,7 +133,7 @@ def jobkorea_crawler_one(id:str, url:str):
         company.update({dt.text.strip(): ''.join([clear_dblspace(x) for x in dd.text.strip().split('\r\n')])})
     ##recruit
     url = base_url + [x.get('src') for x in doc.find_all('iframe') if str(x.get('src')).startswith('/Recruit/GI_Read_Comt_Ifrm')][0]
-    res = req.get(url, headers=headers, cookies=cookies, verify=False)
+    res = session.get(url, headers=headers, cookies=cookies, verify=False)
     _tables = bs(res.content, 'html.parser').find_all('table')
     for i, table in enumerate(_tables):
         with open(f'../crawl/{recruit_id}/{i}.html', 'wt', encoding='utf-8') as fs:
