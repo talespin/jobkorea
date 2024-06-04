@@ -2,99 +2,160 @@
 """
 :filename: 4.jobkorea_parser_one.py
 :author: 최종환
-:last update: 2024.01.11
- 
+:last update: 2024.06.04
+
 :CHANGELOG:
     ============== ========== ====================================
     수정일            수정자        수정내용
     ============== ========== ====================================
     2024.01.11     최종환        최초생성
+    2024.06.04     최종환        파싱항목변경
     ============== ========== ====================================
- 
+
 :desc:
     jobkorea crawl 파일 파싱 id 별 하나씩 파싱하여 id.json 으로 결과생성
 """
+#업체명, 상세모집분야, 근무형태, 임금형태, 최소학력, 급여, 경력, 근무지역, 연관직무
+#우대사항, 요구자격증, 핵심역량, 채용직급, 채용인원, 채용기업의산업
+
 import os
-import sys
-import logging
-import orjson as json
+import json
+import pandas as pd
 from glob import glob
+from lxml import etree
 from bs4 import BeautifulSoup as bs
-from multiprocessing import Pool
 
 
-
-def clear_dblspace(s:str)->str:
-    while True:
-        if len(s) == len(s.replace('  ','')): return s
-        s = s.replace('  ','')
+def get_채용명(doc):
+    return ' '.join(doc.find('title').text.strip().split('|')[:-1]).strip()
 
 
-def main():
-    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-    ids = [os.path.basename(x) for x in glob('../crawl/*')]
-    with Pool(4) as p:
-        p.map(parser, [dict(i=i, recruit_id=recruit_id, total=len(ids)) for i, recruit_id in enumerate(ids)])
+def get_업체명(dom):
+    return dom.xpath('//*[@id="container"]/section/div[1]/article/div[1]/h3/div/span')[0].text.strip()	
 
 
-def parser(dct):
-    i = dct['i']
-    recruit_id = dct['recruit_id']
-    total = dct['total']
-    file_name = f'../result/{recruit_id}.json'
-    logging.info(f'{i+1} / {total}')
-    if os.path.exists(file_name): return
-    if not os.path.exists(f'../crawl/{recruit_id}/{recruit_id}.html'):
-        os.removedirs(f'../crawl/{recruit_id}')
-        return
-    with open(f'../crawl/{recruit_id}/{recruit_id}.html', 'rb') as fs:
-        ss = fs.read().decode('utf-8')
-    if ss.find('채용공고가 존재하지 않습니다') >= 0:
-        logging.info(' 채용공고가 존재하지 않습니다')
-        os.remove(f'../crawl/{recruit_id}/{recruit_id}.html')
-        os.removedirs(f'../crawl/{recruit_id}')
-        return
-    if ss.find('보안정책에 의하여 잡코리아') >= 0:
-        logging.info('보안정책에 의하여 잡코리아이용이 일시적으로 중지되었습니다')
-        _ = [os.remove(x) for x in glob(f'../crawl/{recruit_id}/*/*.html')]
-        os.removedirs(f'../crawl/{recruit_id}')
-        return
-    doc = bs(ss, 'html.parser')
+def get_상세모집분야(doc):
+    return [x for x in str(doc.find_all('script')).split('\n') if x.find("window.dsHelper.registVal('_n_var44'")>0][0][40:-4]
+
+
+def get_근무형태(doc):
     try:
-        title = json.loads(doc.find_all('script')[-2].text.strip())['title']
+        return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(2) > dl > dd:nth-child(2) > ul > li")[0].text.strip()
     except:
-        logging.error('-'*50)
-        logging.error(doc)
-        logging.error(f'../crawl/{recruit_id}/{recruit_id}.html')
-        logging.error(os.path.getsize(f'../crawl/{recruit_id}/{recruit_id}.html'))
-        logging.error('-'*50)
-        raise
-    _article = doc.find('article', {'class':'artReadJobSum'})
-    company_name = _article.find('span').text.strip()
-    article = {}
-    for dt, dd in zip(_article.find_all('dt'), _article.find_all('dd')):   
-        article.update({'article:'+dt.text.strip():''.join([clear_dblspace(k).strip() for k in dd.text.strip().split('\r\n')])})
+        return ''
+
+
+def get_임금형태(doc):
+    return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(2) > dl > dd:nth-child(4)")[0].text.strip()	
+
+	
+def get_최소학력(doc):
     try:
-        article.update({'article:'+'지역':article.get('지역').replace('지도','').strip()})
+        return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(1) > dl > dd:nth-child(4) > strong")[0].text.strip()
     except:
-        pass	
-    ##company
-    _company = doc.find('div', {'class':'tbCol tbCoInfo'})
-    company = {}
-    for dt, dd in zip(_company.find_all('dt'), _company.find_all('dd')):
-        company.update({'company:'+dt.text.strip(): ''.join([clear_dblspace(x) for x in dd.text.strip().split('\r\n')])})
-    ##recruit
-    tables = '\r\n'.join(sorted([os.path.relpath(x) for x in glob(f'crawl/{recruit_id}/*.html') if os.path.basename(x) != f'{recruit_id}.html']))
-    dct = dict(id=recruit_id, company_name=company_name, title=title)
-    dct.update(article)
-    dct.update(company)
-    dct.update(dict(표=tables))
-    with open(file_name, 'wt') as fs:
-        _ = fs.write(json.dumps(dct).decode('utf-8'))
+        return ''
+
+
+def get_급여(doc):
+    return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(2) > dl > dd:nth-child(4)")[0].text.strip()	
+
+
+def get_경력(doc):
+    return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(1) > dl > dd:nth-child(2)")[0].text.strip()
+
+
+def get_근무지역(doc):
+    try:
+        return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(2) > dl > dd:nth-child(6) > a")[0].text.strip()
+    except:
+        return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(2) > dl > dd:nth-child(4)")[0].text.strip()
+
+
+def get_연관직무(doc):
+    try:
+        return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div.tbCol.tbCoInfo > dl > dd:nth-child(2) > text")[0].text.strip()
+    except:
+        return ''
+
+
+def get_우대사항(doc):
+    try:
+        return doc.select("#popupPref > div > div > dl > dd:nth-child(2)")[0].text.strip()
+    except:
+        return ''
+
+
+def get_요구자격증(doc):
+    try:
+        return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(1) > dl > dd:nth-child(6)")[0].text.strip()
+    except:
+        try:	
+            return doc.select("#popupPref > div > div > dl > dd:nth-child(4)")[0].text.strip()
+        except:
+            return ''
+
+
+def get_핵심역량(doc):
+    pass
+
+
+def get_채용직급(doc):
+    try:
+        return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div:nth-child(2) > dl > dd:nth-child(10)")[0].text.strip()
+    except:
+        return ''
+
+
+def get_채용인원(doc):
+    try:
+        return doc.select("#detailArea > section.secReadStatistic > article > div.metricsContainer > div.metrics.metricsRate > div.value")[0].text.strip()
+    except:
+        return ''
+
+
+def get_채용기업의산업(doc):
+    try:
+        return doc.select("#tab03 > article.artReadCoInfo.divReadBx > div > div.tbCol.coInfo > dl > dd:nth-child(2) > text")[0].text.strip()
+    except:
+        try:
+            return doc.select("#container > section > div.readSumWrap.clear > article > div.tbRow.clear > div.tbCol.tbCoInfo > dl > dd:nth-child(2) > text")[0].text.strip()
+        except:
+            return ''
+
+
+def main(clear=False):
+    crawl_list = [os.path.basename(x) for x in glob('../crawl/*')]
+    for id in crawl_list:
+        json_file = f'../crawl/{id}/{id}.json'
+        if clear == False and os.path.exists(json_file): continue
+        with open(f'../crawl/{id}/{id}.html', 'rt', encoding='utf-8') as fs:
+            doc = bs(fs.read(), 'html.parser')
+            dom = etree.HTML(str(doc))
+        ID = id
+        print(ID, end=' ')
+        채용명 = get_채용명(doc)
+        업체명 = get_업체명(dom)
+        상세모집분야 = get_상세모집분야(doc)
+        근무형태 = get_근무형태(doc)
+        임금형태 = get_임금형태(doc)
+        최소학력 = get_최소학력(doc)
+        급여 = get_급여(doc)
+        경력 = get_경력(doc)
+        근무지역 = get_근무지역(doc)
+        연관직무 = get_연관직무(doc)
+        우대사항 = get_우대사항(doc)
+        요구자격증 = get_요구자격증(doc)
+        핵심역량 = get_핵심역량(doc)
+        채용직급 = get_채용직급(doc)
+        채용인원 = get_채용인원(doc)
+        채용기업의산업 = get_채용기업의산업(doc)
+        data = dict(ID=ID, 채용명=채용명, 업체명=업체명, 상세모집분야=상세모집분야, 근무형태=근무형태, 임금형태=임금형태, 최소학력=최소학력, 급여=급여, 경력=경력, 근무지역=근무지역, 연관직무=연관직무, 우대사항=우대사항, 요구자격증=요구자격증, 핵심역량=핵심역량, 채용직급=채용직급, 채용인원=채용인원, 채용기업의산업=채용기업의산업)
+        with open(json_file, 'wt', encoding='utf-8') as fs:
+            _ = fs.write(json.dumps(data, ensure_ascii=False))	
 
 
 if __name__=='__main__':
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    logging.root.name='jobkorea_parser'
-    main()
+    main(True)
+
+
 
