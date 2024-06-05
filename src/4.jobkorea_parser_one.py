@@ -125,8 +125,9 @@ def get_채용기업의산업(doc):
 
 def main(clear=False):
     crawl_list = [os.path.basename(x) for x in glob('../crawl/*')]
+    os.makedirs('../parsed', exist_ok=True)	
     for id in crawl_list:
-        json_file = f'../crawl/{id}/{id}.json'
+        json_file = f'../parsed/{id}.json'
         if clear == False and os.path.exists(json_file): continue
         with open(f'../crawl/{id}/{id}.html', 'rt', encoding='utf-8') as fs:
             doc = bs(fs.read(), 'html.parser')
