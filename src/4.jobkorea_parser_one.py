@@ -24,6 +24,8 @@ import pandas as pd
 from glob import glob
 from lxml import etree
 from bs4 import BeautifulSoup as bs
+import multiprocessing as mp
+
 
 
 def get_채용명(doc):
@@ -123,40 +125,46 @@ def get_채용기업의산업(doc):
             return ''
 
 
-def main(clear=False):
+def main():
     crawl_list = [os.path.basename(x) for x in glob('../crawl/*')]
-    os.makedirs('../parsed', exist_ok=True)	
-    for id in crawl_list:
-        json_file = f'../parsed/{id}.json'
-        if clear == False and os.path.exists(json_file): continue
-        with open(f'../crawl/{id}/{id}.html', 'rt', encoding='utf-8') as fs:
-            doc = bs(fs.read(), 'html.parser')
-            dom = etree.HTML(str(doc))
-        ID = id
-        print(ID, end=' ')
-        채용명 = get_채용명(doc)
-        업체명 = get_업체명(dom)
-        상세모집분야 = get_상세모집분야(doc)
-        근무형태 = get_근무형태(doc)
-        임금형태 = get_임금형태(doc)
-        최소학력 = get_최소학력(doc)
-        급여 = get_급여(doc)
-        경력 = get_경력(doc)
-        근무지역 = get_근무지역(doc)
-        연관직무 = get_연관직무(doc)
-        우대사항 = get_우대사항(doc)
-        요구자격증 = get_요구자격증(doc)
-        핵심역량 = get_핵심역량(doc)
-        채용직급 = get_채용직급(doc)
-        채용인원 = get_채용인원(doc)
-        채용기업의산업 = get_채용기업의산업(doc)
-        data = dict(ID=ID, 채용명=채용명, 업체명=업체명, 상세모집분야=상세모집분야, 근무형태=근무형태, 임금형태=임금형태, 최소학력=최소학력, 급여=급여, 경력=경력, 근무지역=근무지역, 연관직무=연관직무, 우대사항=우대사항, 요구자격증=요구자격증, 핵심역량=핵심역량, 채용직급=채용직급, 채용인원=채용인원, 채용기업의산업=채용기업의산업)
-        with open(json_file, 'wt', encoding='utf-8') as fs:
-            _ = fs.write(json.dumps(data, ensure_ascii=False))	
+    os.makedirs('../parsed', exist_ok=True)
+    pool = mp.Pool(5)#CPU 갯수-1 개 정도로 돌리면됩니다.
+    pool.map(sub, crawl_list)
+    pool.close()
+    pool.close()
+
+
+def sub(id):    
+    json_file = f'../parsed/{id}.json'
+    if os.path.exists(json_file): return
+    with open(f'../crawl/{id}/{id}.html', 'rt', encoding='utf-8') as fs:
+        doc = bs(fs.read(), 'html.parser')
+        dom = etree.HTML(str(doc))
+    ID = id
+    #print(ID, end=' ')
+    채용명 = get_채용명(doc)
+    업체명 = get_업체명(dom)
+    상세모집분야 = get_상세모집분야(doc)
+    근무형태 = get_근무형태(doc)
+    임금형태 = get_임금형태(doc)
+    최소학력 = get_최소학력(doc)
+    급여 = get_급여(doc)
+    경력 = get_경력(doc)
+    근무지역 = get_근무지역(doc)
+    연관직무 = get_연관직무(doc)
+    우대사항 = get_우대사항(doc)
+    요구자격증 = get_요구자격증(doc)
+    핵심역량 = get_핵심역량(doc)
+    채용직급 = get_채용직급(doc)
+    채용인원 = get_채용인원(doc)
+    채용기업의산업 = get_채용기업의산업(doc)
+    data = dict(ID=ID, 채용명=채용명, 업체명=업체명, 상세모집분야=상세모집분야, 근무형태=근무형태, 임금형태=임금형태, 최소학력=최소학력, 급여=급여, 경력=경력, 근무지역=근무지역, 연관직무=연관직무, 우대사항=우대사항, 요구자격증=요구자격증, 핵심역량=핵심역량, 채용직급=채용직급, 채용인원=채용인원, 채용기업의산업=채용기업의산업)
+    with open(json_file, 'wt', encoding='utf-8') as fs:
+        _ = fs.write(json.dumps(data, ensure_ascii=False))	
 
 
 if __name__=='__main__':
-    main(True)
+    main()
 
 
 
